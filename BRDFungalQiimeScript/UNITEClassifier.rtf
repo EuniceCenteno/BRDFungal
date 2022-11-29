@@ -1,0 +1,77 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier;\f2\fswiss\fcharset0 Helvetica-Bold;
+}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;\red20\green20\blue20;
+\red20\green20\blue20;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c100000\c100000\c100000;\cssrgb\c10196\c10196\c10196;
+\cssrgb\c10196\c10196\c10196;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf2 Fungal Reference \
+UNITE repository: https://unite.ut.ee/repository.php\
+- I selected the newest version: 2021-05-10\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \CocoaLigature0 C5547B97AAA979E45F79DC4C8C4B12113389343D7588716B5AD330F8BDB300C9.tgz\
+\
+Decompress: \
+tar xzf C5547B97AAA979E45F79DC4C8C4B12113389343D7588716B5AD330F8BDB300C9.tgz\
+\
+Training the reference sequences:\
+https://john-quensen.com/tutorials/training-the-qiime2-classifier-with-unite-its-reference-sequences/\
+\
+\pard\pardeftab720\sl540\partightenfactor0
+\cf2 \cb3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \outl0\strokewidth0 \strokec4 cd \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \outl0\strokewidth0 sh_qiime_release_10.05.2021\cb3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \outl0\strokewidth0 \strokec4 /developer/\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf2 \
+This is to remove any formatting error, white spaces, lower case letter that could interfere with the process\
+\pard\pardeftab720\sl540\partightenfactor0
+\cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec4 awk '/^>/ \{print($0)\}; /^[^>]/ \{print(toupper($0))\}' \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \outl0\strokewidth0 sh_refs_qiime_ver8_97_10.05.2021_dev.fasta\cb3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \outl0\strokewidth0 \strokec4  | tr -d ' ' > \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \outl0\strokewidth0 sh_refs_qiime_ver8_97_10.05.2021_dev\cb3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \outl0\strokewidth0 \strokec4 _uppercase.fasta\
+
+\f1\fs32 \cf4 \
+
+\f2\b\fs24 Import UNITE references to Qiime2\
+\pard\pardeftab720\sl540\partightenfactor0
+
+\f0\b0 \cf4 qiime tools import \\\
+--type FeatureData[Sequence] \\\
+--input-path \cf2 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \outl0\strokewidth0 sh_refs_qiime_ver8_97_10.05.2021_dev\cf2 \cb3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 _uppercase.fasta\cf4 \cb3 \outl0\strokewidth0 \strokec4  \\\
+--output-path unite-ver8-seqs_97_10.05.2021.qza\
+\pard\pardeftab720\sl540\partightenfactor0
+\cf4 \
+
+\f2\b Import UNITE taxonomy to Qiime2\
+\pard\pardeftab720\sl540\partightenfactor0
+
+\f0\b0 \cf4 qiime tools import \\\
+--type FeatureData[Taxonomy] \\\
+--input-path sh_taxonomy_qiime_\cf2 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \outl0\strokewidth0 ver8_97_10.05.2021\cf4 \cb3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \outl0\strokewidth0 \strokec4 _dev.txt \\\
+--output-path unite-ver8-taxonomy_97_10.05.2021.qza \\\
+--input-format HeaderlessTSVTaxonomyFormat
+\f1\fs32 \
+\pard\pardeftab720\sl540\partightenfactor0
+
+\f2\b\fs24 \cf4 \
+Train the UNITE classifier\
+\pard\pardeftab720\sl540\partightenfactor0
+
+\f1\b0 \cf4 qiime feature-classifier fit-classifier-naive-bayes \\\
+--i-reference-reads unite-ver8-seqs_97_10.05.2021.qza \\\
+--i-reference-taxonomy unite-ver8-taxonomy_97_10.05.2021.qza \\\
+--o-classifier unite-ver8-97-classifier-10.05.2021.qza\
+\pard\pardeftab720\sl540\partightenfactor0
+
+\f2\b \cf4 \
+\
+\
+\
+}

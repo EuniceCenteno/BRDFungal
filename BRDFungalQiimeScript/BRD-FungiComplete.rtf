@@ -1,0 +1,254 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;\f2\fnil\fcharset0 HelveticaNeue;
+\f3\fnil\fcharset0 Menlo-Bold;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red38\green38\blue38;\red242\green242\blue242;
+\red255\green255\blue255;\red247\green247\blue247;\red213\green213\blue213;}
+{\*\expandedcolortbl;;\csgray\c0;\cssrgb\c20000\c20000\c20000;\cssrgb\c96078\c96078\c96078;
+\cssrgb\c100000\c100000\c100000;\cssrgb\c97647\c97647\c97647;\cssrgb\c86667\c86667\c86667;}
+\margl1440\margr1440\vieww10800\viewh9620\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 sinteractive -A john2185 -t 4:00:00 -n12 #new command \
+\
+Getting set up\
+You will need the necessary modules to run qiime\
+module load bioinfo \
+module load mothur\
+\
+mothur \
+ make.file(inputdir=., type=gz, prefix=BRDFungalComplete.stability)\
+\
+CHANGe the first row to (use \'93Tab\'94 to separate it)\
+sample-id   forward-absolute-filepath       reverse-absolute-filepath\
+\
+To look at the MANIFESTfile\
+\
+\
+module load Qiime/2-2020.2\
+module list\
+\
+qiime tools import \\\
+--type 'SampleData[PairedEndSequencesWithQuality]' \\\
+--input-path 
+\f1\fs26 \cf2 \CocoaLigature0 BRDFungalComplete.stability.txt
+\f0\fs24 \cf0 \CocoaLigature1  \\\
+--input-format PairedEndFastqManifestPhred33V2 \\\
+--output-path ./FSamples/demux-paired-end.qza\
+\
+qiime demux summarize \\\
+  --i-data ./FSamples/demux-paired-end.qza \\\
+  --o-visualization ./FSamples/demux-pairedFC-end.qzv\
+\
+Denoising step\
+Total sequences 
+\f2\fs28 \cf3 \expnd0\expndtw0\kerning0
+8481537
+\f0\fs24 \cf0 \kerning1\expnd0\expndtw0 \
+Samples: 79\
+\
+qiime dada2 denoise-paired \\\
+  --i-demultiplexed-seqs ./FSamples/demux-paired-end.qza \\\
+  --p-trim-left-f 0 \\\
+  --p-trim-left-r 0 \\\
+  --p-trunc-len-f 227 \\\
+  --p-trunc-len-r 156 \\\
+  --o-table ./FSamples/tableFungal.qza \\\
+  --o-representative-sequences ./FSamples/rep-seqsFungal.qza \\\
+  --o-denoising-stats ./FSamples/denoisingFungal-stats.qza\
+\
+FeatureTable and FeatureData summaries\
+qiime feature-table summarize \\\
+  --i-table ./FSamples/tableFungal.qza \\\
+  --o-visualization ./FSamples/tableFungal.qzv \\\
+  --m-sample-metadata-file 
+\f1\fs22 \cf2 \CocoaLigature0 BRD.metadadaFungal.txt
+\f0\fs24 \cf0 \CocoaLigature1  \
+\
+qiime feature-table tabulate-seqs \\\
+  --i-data ./FSamples/rep-seqsFungal.qza \\\
+  --o-visualization ./FSamples/rep-seqsFungal.qzv\
+ \
+qiime metadata tabulate \\\
+  --m-input-file ./FSamples/denoisingFungal-stats.qza \\\
+  --o-visualization ./FSamples/denoisingFungal-stats.qzv\
+\
+## After deinoising\
+Number of samples 131\
+Number of features: 
+\f2\fs28 \cf3 \cb4 \expnd0\expndtw0\kerning0
+7,050
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \
+Samples 
+\f2\fs28 \cf3 \expnd0\expndtw0\kerning0
+6,092,893
+\f0\fs24 \cf0 \kerning1\expnd0\expndtw0 \
+\
+Generating the phylogenetic tree\
+\
+qiime phylogeny align-to-tree-mafft-fasttree \\\
+  --i-sequences ./FSamples/rep-seqsFungal.qza \\\
+  --o-alignment ./FSamples/aligned-rep-seqsFungal.qza \\\
+  --o-masked-alignment ./FSamples/masked-aligned-rep-seqsFungal.qza \\\
+  --o-tree ./FSamples/unrooted-treeFungal.qza \\\
+  --o-rooted-tree ./FSamples/rooted-treeFungal.qza\
+ \
+Taxonomic analysis\
+qiime feature-classifier classify-sklearn \\\
+  --i-classifier unite-ver8-97-classifier-10.05.2021.qza \\\
+  --i-reads ./FSamples/rep-seqsFungal.qza \\\
+  --o-classification ./FSamples/taxonomyFungal.qza\
+\
+qiime metadata tabulate \\\
+  --m-input-file ./FSamples/taxonomyFungal.qza \\\
+  --o-visualization ./FSamples/taxonomyFungal.qzv\
+\
+qiime taxa barplot \\\
+  --i-table ./FSamples/tableFungal.qza \\\
+  --i-taxonomy ./FSamples/taxonomyFungal.qza \\\
+  --m-metadata-file 
+\f1\fs22 \cf2 \CocoaLigature0 BRD.metadadaFungal.txt
+\f0\fs24 \cf0 \CocoaLigature1  \\\
+  --o-visualization ./FSamples/taxa-bar-plotsFungal.qzv\
+\
+##Testing rarifaction\
+qiime diversity alpha-rarefaction \\\
+  --i-table ./FSamples/tableFungal.qza \\\
+  --i-phylogeny ./FSamples//rooted-treeFungal.qza \\\
+  --p-max-depth 
+\f2\fs28 \cf3 \cb5 \expnd0\expndtw0\kerning0
+19784
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0  \\\
+  --m-metadata-file 
+\f1\fs22 \cf2 \CocoaLigature0 BRD.metadadaFungal.txt
+\f0\fs24 \cf0 \CocoaLigature1    \\\
+  --o-visualization ./FSamples/alpha-rarefaction-
+\f2\fs28 \cf3 \cb5 \expnd0\expndtw0\kerning0
+19784
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 .qzv\
+\
+qiime diversity core-metrics-phylogenetic \\\
+  --i-phylogeny ./FSamples/rooted-treeFungal.qza \\\
+  --i-table ./FSamples/tableFungal.qza \\\
+  --p-sampling-depth 
+\f2\fs28 \cf3 \cb5 \expnd0\expndtw0\kerning0
+19784
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0  \\\
+  --m-metadata-file 
+\f1\fs22 \cf2 \CocoaLigature0 BRD.metadadaFungal.txt
+\f0\fs24 \cf0 \CocoaLigature1  \\\
+  --output-dir ./FSamples/core-metrics-results\
+\
+#Lost 5 samples \
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trcbpat5 \tamarb400 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clcbpat6 \clwWidth8868\clftsWidth3 \clbrdrt\brdrs\brdrw20\brdrcf7 \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt160 \clpadl160 \clpadb160 \clpadr160 \gaph\cellx4320
+\clvertalt \clcbpat6 \clwWidth6812\clftsWidth3 \clbrdrt\brdrs\brdrw20\brdrcf7 \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt160 \clpadl160 \clpadb160 \clpadr160 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl380\partightenfactor0
+
+\f2\fs28 \cf3 \expnd0\expndtw0\kerning0
+Dairy115\cell 
+\pard\intbl\itap1\pardeftab720\sl380\partightenfactor0
+\cf3 16825\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trcbpat5 \tamarb400 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth8868\clftsWidth3 \clbrdrt\brdrs\brdrw20\brdrcf7 \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt160 \clpadl160 \clpadb160 \clpadr160 \gaph\cellx4320
+\clvertalt \clshdrawnil \clwWidth6812\clftsWidth3 \clbrdrt\brdrs\brdrw20\brdrcf7 \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt160 \clpadl160 \clpadb160 \clpadr160 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl380\partightenfactor0
+\cf3 Dairy130\cell 
+\pard\intbl\itap1\pardeftab720\sl380\partightenfactor0
+\cf3 13661\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trcbpat5 \tamarb400 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clcbpat6 \clwWidth8868\clftsWidth3 \clbrdrt\brdrs\brdrw20\brdrcf7 \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt160 \clpadl160 \clpadb160 \clpadr160 \gaph\cellx4320
+\clvertalt \clcbpat6 \clwWidth6812\clftsWidth3 \clbrdrt\brdrs\brdrw20\brdrcf7 \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt160 \clpadl160 \clpadb160 \clpadr160 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl380\partightenfactor0
+\cf3 Dairy35\cell 
+\pard\intbl\itap1\pardeftab720\sl380\partightenfactor0
+\cf3 1925\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trcbpat5 \tamarb400 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth8868\clftsWidth3 \clbrdrt\brdrs\brdrw20\brdrcf7 \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt160 \clpadl160 \clpadb160 \clpadr160 \gaph\cellx4320
+\clvertalt \clshdrawnil \clwWidth6812\clftsWidth3 \clbrdrt\brdrs\brdrw20\brdrcf7 \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt160 \clpadl160 \clpadb160 \clpadr160 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl380\partightenfactor0
+\cf3 Dairy25\cell 
+\pard\intbl\itap1\pardeftab720\sl380\partightenfactor0
+\cf3 1\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trcbpat5 \tamarb400 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clcbpat6 \clwWidth8868\clftsWidth3 \clbrdrt\brdrs\brdrw20\brdrcf7 \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt160 \clpadl160 \clpadb160 \clpadr160 \gaph\cellx4320
+\clvertalt \clcbpat6 \clwWidth6812\clftsWidth3 \clbrdrt\brdrs\brdrw20\brdrcf7 \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt160 \clpadl160 \clpadb160 \clpadr160 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl380\partightenfactor0
+\cf3 Dairy92\cell 
+\pard\intbl\itap1\pardeftab720\sl380\partightenfactor0
+\cf3 0\cell \lastrow\row
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \kerning1\expnd0\expndtw0 \
+#checking the rarified table\
+qiime feature-table summarize \\\
+  --i-table ./FSamples/
+\f3\b\fs26 \cf2 \CocoaLigature0 core-metrics-results
+\f0\b0\fs24 \cf0 \CocoaLigature1 /
+\f1\fs26 \cf2 \CocoaLigature0 rarefied_table.qza
+\f0\fs24 \cf0 \CocoaLigature1  \\\
+  --o-visualization ./FSamples/
+\f3\b\fs26 \cf2 \CocoaLigature0 core-metrics-results
+\f0\b0\fs24 \cf0 \CocoaLigature1 /
+\f1\fs26 \cf2 \CocoaLigature0 rarefied_tableFungi.qzv
+\f0\fs24 \cf0 \CocoaLigature1  \\\
+  --m-sample-metadata-file 
+\f1\fs22 \cf2 \CocoaLigature0 BRD.metadadaFungal.txt
+\f0\fs24 \cf0 \CocoaLigature1  \
+\
+## Export the documents from the cluster to the computer\
+qiime tools export --input-path ./FSamples/taxonomyFungal.qza \
+--output-path ./FSamples/core-metrics-results/exported/\
+You are in core-metric-results directory \
+qiime tools export --input-path ./rarefied_table.qza --output-path exported/\
+qiime tools export --input-path ./faith_pd_vector.qza --output-path exported/\
+mv exported/alpha-diversity.tsv exported/faith_pd.tsv\
+qiime tools export --input-path ./shannon_vector.qza --output-path exported/\
+mv exported/alpha-diversity.tsv exported/shannon.tsv\
+qiime tools export --input-path ./observed_otus_vector.qza --output-path exported/\
+mv exported/alpha-diversity.tsv exported/observed_otus.tsv\
+ls exported\
+qiime tools export --input-path ./evenness_vector.qza --output-path exported/\
+mv exported/alpha-diversity.tsv exported/evenness.tsv\
+biom convert -i exported/feature-table.biom -o exported/rarified-table.tsv --to-tsv\
+\
+\
+Export beta diversity, you have to move to the OnlySamples directory\
+qiime tools export \\\
+  --input-path ./FSamples/core-metrics-results/unweighted_unifrac_pcoa_results.qza \\\
+  --output-path ./FSamples/core-metrics-results/exported-unweighted_unifrac\
+mv ./FSamples/core-metrics-results/exported-unweighted_unifrac/ordination.txt ./FSamples/core-metrics-results/exported-unweighted_unifrac/ordination_unweighted.txt\
+\
+qiime tools export \\\
+  --input-path ./FSamples/core-metrics-results/bray_curtis_pcoa_results.qza \\\
+  --output-path ./FSamples/core-metrics-results/exported-bray_curtis\
+mv ./FSamples/core-metrics-results/exported-bray_curtis/ordination.txt ./FSamples/core-metrics-results/exported-bray_curtis/ordination_braycurtis.txt\
+\
+qiime tools export \\\
+  --input-path ./FSamples/core-metrics-results/weighted_unifrac_pcoa_results.qza \\\
+  --output-path ./FSamples/core-metrics-results/exported-weighted_unifrac\
+mv ./FSamples/core-metrics-results/exported-weighted_unifrac/ordination.txt ./FSamples/core-metrics-results/exported-weighted_unifrac/ordination_weighted.txt\
+\
+qiime tools export \\\
+  --input-path ./FSamples/core-metrics-results/weighted_unifrac_distance_matrix.qza \\\
+  --output-path ./FSamples/core-metrics-results/exported-weighted_distance\
+mv ./FSamples/core-metrics-results/exported-weighted_distance/distance-matrix.tsv ./FSamples/core-metrics-results/exported-weighted_distance/weighted-distance-matrix.tsv\
+\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 ## Getting Chao1\
+qiime diversity alpha \\\
+--i-table ./FSamples//core-metrics-results/rarefied_table.qza \\\
+--p-metric chao1 \\\
+--o-alpha-diversity ./FSamples/chao1.qza\
+\
+qiime tools export --input-path chao1.qza --output-path ./core-metrics-results/exported/\
+mv alpha-diversity.tsv chao1.tsv\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\
+}
