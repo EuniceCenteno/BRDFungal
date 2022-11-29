@@ -1,0 +1,5 @@
+"","sp1_name","sp2_name","sp1","sp2","sp1_inc","sp2_inc","obs_cooccur","prob_cooccur","exp_cooccur","p_lt","p_gt","Species.x","Confidence","OTUs","sig","Phylum","Class","Order","Family","Genus","Species.y"
+"1","ITS105","ASV1871",105,1120,22,43,21,0.313,17.2,0.99919,0.01051,"Histophilus",0.9999952,"92eb590559be1722f08a6ed0a3813b2a","Positive","Ascomycota","Sordariomycetes","Trichosphaeriales","Trichosphaeriaceae","Nigrospora","Nigrospora_oryzae"
+"2","ITS1005","ASV1871",1005,1120,2,43,0,0.028,1.6,0.04444,1,"Histophilus",0.9999952,"92eb590559be1722f08a6ed0a3813b2a","Negative","Ascomycota","Eurotiomycetes","Eurotiales","Aspergillaceae","Aspergillus","Aspergillus_caesiellus"
+"3","ITS16","ASV1871",16,1120,2,43,0,0.028,1.6,0.04444,1,"Histophilus",0.9999952,"92eb590559be1722f08a6ed0a3813b2a","Negative","Basidiomycota","Tremellomycetes","Trichosporonales","Trichosporonaceae","Trichosporon","unidentified"
+"4","ITS290","ASV1871",290,1120,2,43,0,0.028,1.6,0.04444,1,"Histophilus",0.9999952,"92eb590559be1722f08a6ed0a3813b2a","Negative","Ascomycota","Saccharomycetes","Saccharomycetales","Saccharomycetaceae","Issatchenkia","Issatchenkia_orientalis"
